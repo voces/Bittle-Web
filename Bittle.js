@@ -40,7 +40,7 @@ class Bittle extends EventEmitter2 {
 
         this.queue.push([echo, json, callback]);
 
-        // console.log("SEND", obj);
+        console.log("SEND", obj);
         this.ws.send(json);
 
     }
@@ -49,7 +49,7 @@ class Bittle extends EventEmitter2 {
 
         e.json = JSON.parse(e.data);
 
-        // console.log("RECV", e.json);
+        console.log("RECV", e.json);
 
         if (this.queue.length > 0 && typeof e.json.echo !== "undefined")
             for (let i = 0; i < this.queue.length; i++)

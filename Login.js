@@ -26,6 +26,11 @@ class Login extends EventEmitter2 {
         this.registerLink.textContent = "Register instead.";
         this.registerLink.addEventListener("click", () => this.registerInstead());
 
+        this.resetLink = document.createElement("a");
+        this.resetLink.setAttribute("href", "#login-reset");
+        this.resetLink.textContent = "Reset pass instead.";
+        this.resetLink.addEventListener("click", () => this.resetInstead());
+
     }
 
     hide() {
@@ -49,6 +54,8 @@ class Login extends EventEmitter2 {
 
     loginHandler(e) {
 
+        console.log(e.json, `<span>${e.json.reason}</span> `, this.resetLink);
+
         if (e.json.status === "failed") {
 
             switch (e.json.reason) {
@@ -57,11 +64,20 @@ class Login extends EventEmitter2 {
                     this.nameError.innerHTML = `<span>${e.json.reason}</span> `;
                     this.nameError.appendChild(this.registerLink);
                     this.name.parentElement.classList.add("is-invalid");
+                    this.name.select();
+                    break;
+
+                case "Incorrect pass.":
+                    this.passError.innerHTML = `<span>${e.json.reason}</span> `;
+                    this.passError.appendChild(this.resetLink);
+                    this.pass.parentElement.classList.add("is-invalid");
+                    this.pass.select();
                     break;
 
                 default:
                     this.nameError.textContent = e.json.reason;
                     this.name.parentElement.classList.add("is-invalid");
+                    this.name.select();
                     break;
 
             }
@@ -81,6 +97,15 @@ class Login extends EventEmitter2 {
 
         this.dialog.close();
         this.emit("register", {name: this.name.value, pass: this.pass.value});
+
+        this.clear();
+
+    }
+
+    resetInstead() {
+
+        this.dialog.close();
+        this.emit("reset", {name: this.name.value});
 
         this.clear();
 

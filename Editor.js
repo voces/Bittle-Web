@@ -24,9 +24,9 @@ class Editor extends EventEmitter2 {
         this.editor = ace.edit(this.editorDiv);
 
         this.session = this.editor.getSession();
-        this.session.setMode("ace/mode/javascript");
+        this.session.setMode("ace/mode/java");
 
-        this.a.addEventListener("click", () => this.emit("send", {id: "focus", filename: this.name}));
+        this.a.addEventListener("click", () => this.emit("send", {id: "focus", filename: this.name, line: 0, column: 0}));
         this.a.addEventListener("contextmenu", e => {this.emit("rename", this), e.preventDefault();});
 
         this.editorDiv.addEventListener("click", () => this.editor.resize());
@@ -93,7 +93,7 @@ class Editor extends EventEmitter2 {
                     id: "lines",
                     filename: this.name,
                     start: e.start.row,
-                    deleteCount: e.lines.length - 1,
+                    deleteCount: e.lines.length,
                     lines: [this.session.getLine(e.start.row, e.start.row)]
                 });
 
@@ -118,13 +118,11 @@ class Editor extends EventEmitter2 {
 
     line(json) {
 
-        let line = this.session.getLine(json.lineIndex);
-
         this.ignoreChanges = true;
         this.session.replace({
-            start: {row: json.lineIndex, column: 0},
-            end: {row: json.lineIndex, column: Number.MAX_VALUE}
-        }, line.slice(0, json.start) + (json.line || "") + line.slice(json.start + json.deleteCount));
+            start: {row: json.lineIndex, column: json.start},
+            end: {row: json.lineIndex, column: json.start + json.deleteCount}
+        }, json.line || "");
         this.ignoreChanges = false;
 
     }
@@ -132,10 +130,11 @@ class Editor extends EventEmitter2 {
     lines(json) {
 
         this.ignoreChanges = true;
+
         this.session.replace({
             start: {row: json.start, column: 0},
-            end: {row: json.start + json.deleteCount, column: Number.MAX_VALUE}
-        }, json.lines.join("\n"));
+            end: {row: json.start + json.deleteCount - 1, column: json.deleteCount ? Number.MAX_VALUE : 0}
+        }, json.lines.join("\n") + (json.deleteCount ? "" : "\n"));
         this.ignoreChanges = false;
 
     }

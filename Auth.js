@@ -1,4 +1,4 @@
-/*global EventEmitter2, util, Login, Register*/
+/*global EventEmitter2, util, Login, Register, Reset*/
 /*exported Auth*/
 
 class Auth extends EventEmitter2 {
@@ -8,15 +8,18 @@ class Auth extends EventEmitter2 {
 
         this.login = new Login();
         this.register = new Register();
+        this.reset = new Reset();
 
         this.login.on("send", (json, callback) => this.emit("send", json, callback));
-        this.register.on("send", (json, callback) => this.emit("send", json, callback));
-
         this.login.on("loggedIn", name => this.loggedIn(name));
+        this.login.on("register", data => this.register.show(data));
+        this.login.on("reset", data => this.reset.show(data));
+
+        this.register.on("send", (json, callback) => this.emit("send", json, callback));
         this.register.on("loggedIn", name => this.loggedIn(name));
 
-        this.login.on("snackbar", data => this.emit("snackbar", data));
-        this.login.on("register", data => this.register.show(data));
+        this.reset.on("send", (json, callback) => this.emit("send", json, callback));
+        this.reset.on("snackbar", data => this.emit("snackbar", data));
 
     }
 

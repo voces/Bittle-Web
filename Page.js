@@ -14,10 +14,10 @@ class Page {
 
         this.domQueue = [];
 
-        // this.auth.on("hidden", () => this.navigation.collapseDrawer());
+        this.auth.on("collapse", () => this.navigation.collapseDrawer());
         this.auth.on("send", (json, callback) => this.bittle.send(json, callback));
         this.auth.on("loggedIn", () => {this.editors.trackAll(); this.navigation.loggedIn();});
-        this.auth.on("snackbar", data => this.snackbar.show(data));
+        this.auth.on("snackbar", data => {this.snackbar.show(data); return this.navigation.collapseDrawer();});
 
         this.editors.on("domQueue", func => this.domQueue.push(func));
         this.editors.on("send", (json, callback) => this.auth.name ? this.bittle.send(json, callback) : null);

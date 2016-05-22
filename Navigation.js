@@ -7,6 +7,7 @@ class Navigation extends EventEmitter2 {
 
         // this.drawer = document.getElementById("nav-drawer");
         this.layout = document.getElementById("layout");
+        this.drawer = this.layout.querySelector(".mdl-layout__drawer");
 
         this.emit("ready");
 
@@ -14,13 +15,20 @@ class Navigation extends EventEmitter2 {
 
     collapseDrawer() {
 
-        this.layout.MaterialLayout.toggleDrawer();
-
+        if (this.drawVisible())
+            this.layout.MaterialLayout.toggleDrawer();
+        
     }
 
     loggedIn() {
 
-        this.layout.MaterialLayout.toggleDrawer();
+        this.collapseDrawer();
+
+    }
+
+    drawVisible() {
+
+        return this.drawer.classList.contains("is-visible");
 
     }
 

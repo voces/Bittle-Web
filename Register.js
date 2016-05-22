@@ -11,6 +11,7 @@ class Register extends EventEmitter2 {
             name: "register-name", nameError: "register-name-error",
             pass: "register-pass", passError: "register-pass-error",
             confirmPass: "register-confirm-pass", passError: "register-confirm-pass-error",
+            email: "register-email", emailError: "register-email-error",
         });
 
         this.show1.addEventListener("click", () => this.dialog.showModal());
@@ -19,6 +20,7 @@ class Register extends EventEmitter2 {
         this.name.addEventListener("blur", () => this.verifyName());
         this.pass.addEventListener("blur", () => this.verifyPass());
         this.confirmPass.addEventListener("blur", () => this.verifyConfirmPass());
+        this.email.addEventListener("blur", () => this.verifyEmail());
 
         this.dialog.querySelector(".close").addEventListener("click", () => this.dialog.close());
 
@@ -47,6 +49,17 @@ class Register extends EventEmitter2 {
 
     }
 
+    verifyEmail() {
+
+        if (this.email.value !== "" && !this.email.value.match(/.+@.+\..+/)) {
+            this.email.parentElement.classList.add("is-invalid");
+            return false;
+        }
+
+        return true;
+
+    }
+
     clear() {
 
         util.setTextField(this.name, "");
@@ -55,6 +68,8 @@ class Register extends EventEmitter2 {
         this.pass.parentElement.classList.remove("is-invalid");
         util.setTextField(this.confirmPass, "");
         this.confirmPass.parentElement.classList.remove("is-invalid");
+        util.setTextField(this.email, "");
+        this.email.parentElement.classList.remove("is-invalid");
 
     }
 
@@ -67,6 +82,7 @@ class Register extends EventEmitter2 {
                 default:
                     this.nameError.textContent = e.json.reason;
                     this.name.parentElement.classList.add("is-invalid");
+                    this.name.select();
                     break;
 
             }
@@ -85,9 +101,9 @@ class Register extends EventEmitter2 {
 
     tryRegister() {
 
-        if (this.verifyName() + this.verifyPass() + this.verifyConfirmPass() < 3) return;
+        if (this.verifyName() + this.verifyPass() + this.verifyConfirmPass() + this.verifyEmail() < 4) return;
 
-        this.emit("send", {id: "register", name: this.name.value, pass: this.pass.value}, e => this.registerHandler(e));
+        this.emit("send", {id: "register", name: this.name.value, pass: this.pass.value, email: this.email.value}, e => this.registerHandler(e));
         // send(JSON.stringify({id: "register", name: this.name.value, pass: this.pass.value}), e => this.registerHandler(e));
 
     }
@@ -99,10 +115,12 @@ class Register extends EventEmitter2 {
         if (typeof data.name !== "undefined") util.setTextField(this.name, data.name);
         if (typeof data.pass !== "undefined") util.setTextField(this.pass, data.pass);
         if (typeof data.confirmPass !== "undefined") util.setTextField(this.confirmPass, data.confirmPass);
+        if (typeof data.email !== "undefined") util.setTextField(this.email, data.email);
 
         if (typeof data.name === "undefined") this.name.focus();
         else if (typeof data.pass === "undefined") this.pass.focus();
         else if (typeof data.confirmPass === "undefined") this.confirmPass.focus();
+        else if (typeof data.email === "undefined") this.email.focus();
 
     }
 
