@@ -54,8 +54,6 @@ class Login extends EventEmitter2 {
 
     loginHandler(e) {
 
-        console.log(e.json, `<span>${e.json.reason}</span> `, this.resetLink);
-
         if (e.json.status === "failed") {
 
             switch (e.json.reason) {

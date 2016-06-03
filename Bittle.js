@@ -6,6 +6,7 @@ class Bittle extends EventEmitter2 {
     constructor() {
         super();
 
+        this.waitToSend = [];
         this.queue = [];
 
         this.connect();
@@ -21,6 +22,11 @@ class Bittle extends EventEmitter2 {
         this.ws.addEventListener("message", e => this.onMessage(e));
         this.ws.addEventListener("close", () => this.disconnected());
 
+        for (let i = 0; i < this.waitToSend.length; i++)
+            this.send(...this.waitToSend[i]);
+
+        this.waitToSend = [];
+
     }
 
     disconnected() {
@@ -31,6 +37,8 @@ class Bittle extends EventEmitter2 {
     }
 
     send(obj, callback) {
+
+        if (this.ws.readyState !== 1) return this.waitToSend.push([obj, callback]);
 
         let echo = this.echoId++;
 

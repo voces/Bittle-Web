@@ -31,7 +31,7 @@ class Editors extends EventEmitter2 {
 
         this.editorsBarNew.addEventListener("click", () => this.newEditorDialog.dialog.showModal());
 
-        this.newEditor("untitled").select();
+        this.newEditor("untitled.js").select();
 
     }
 

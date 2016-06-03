@@ -1,6 +1,8 @@
 /*global EventEmitter2, ace*/
 /*exported Editor*/
 
+let modeList = ace.require("ace/ext/modelist");
+
 class Editor extends EventEmitter2 {
 
     constructor(name) {
@@ -24,7 +26,7 @@ class Editor extends EventEmitter2 {
         this.editor = ace.edit(this.editorDiv);
 
         this.session = this.editor.getSession();
-        this.session.setMode("ace/mode/java");
+        this.session.setMode(modeList.getModeForPath(name).mode);
 
         this.a.addEventListener("click", () => this.emit("send", {id: "focus", filename: this.name, line: 0, column: 0}));
         this.a.addEventListener("contextmenu", e => {this.emit("rename", this), e.preventDefault();});
