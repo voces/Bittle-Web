@@ -35,6 +35,17 @@ class Editor extends EventEmitter2 {
 
         this.editor.on("change", e => this.processChange(e));
 
+        this.tracked = false;
+
+    }
+
+    rename(newFilename) {
+
+        this.name = newFilename;
+        this.a.textContent = newFilename;
+
+        this.session.setMode(modeList.getModeForPath(newFilename).mode);
+
     }
 
     select() {
@@ -142,6 +153,14 @@ class Editor extends EventEmitter2 {
     }
 
     rename(filename) {
+
+        console.log("renameFile");
+
+        this.emit("send", {
+            id: "renameFile",
+            filename: this.name,
+            newFilename: filename
+        });
 
         this.name = filename;
 

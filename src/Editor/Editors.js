@@ -51,7 +51,7 @@ class Editors extends EventEmitter2 {
 
         this.editors.push(editor);
 
-        this.emit("send", {id: "track", filename: editor.name, lines: [""]});
+        this.emit("send", {id: "track", filename: editor.name, lines: [""]}, () => this.tracked = true);
 
         return editor;
 
@@ -60,7 +60,12 @@ class Editors extends EventEmitter2 {
     trackAll() {
 
         for (let i = 0; i < this.editors.length; i++)
-            this.emit("send", {id: "track", filename: this.editors[i].name, lines: this.editors[i].editor.getValue().split("\n")});
+            if (!this.editors[i].tracked)
+                this.emit("send", {
+                    id: "track",
+                    filename: this.editors[i].name,
+                    lines: this.editors[i].editor.getValue().split("\n")
+                }, () => this.tracked = true);
 
     }
 
@@ -119,6 +124,13 @@ class Editors extends EventEmitter2 {
 
         for (let i = 0; i < this.editors.length; i++)
             if (this.editors[i].name === json.filename) return this.editors[i].lines(json);
+
+    }
+
+    renameEvent(oldFilename, newFilename) {
+
+        for (let i = 0; i < this.editors.length; i++)
+            if (this.editors[i].name === oldFilename) return this.editors[i].rename(newFilename);
 
     }
 

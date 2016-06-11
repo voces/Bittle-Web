@@ -14,11 +14,13 @@ class Page {
         this.snackbar = new Snackbar();
         this.popup = new Popup();
 
+        this.tracked = false;
+
         this.domQueue = [];
 
         this.auth.on("collapse", () => this.navigation.collapseDrawer());
         this.auth.on("send", (json, callback) => this.bittle.send(json, callback));
-        this.auth.on("loggedIn", () => {this.editors.trackAll(); this.navigation.loggedIn();});
+        this.auth.on("loggedIn", () => this.loggedIn());
         this.auth.on("snackbar", data => {this.snackbar.show(data); return this.navigation.collapseDrawer();});
 
         this.editors.on("domQueue", func => this.domQueue.push(func));
@@ -34,6 +36,9 @@ class Page {
         this.bittle.on("lines", e => e.json.blame !== this.auth.name ? this.editors.lines(e.json) : null);
         this.bittle.on("connected", e => this.connected(e));
         this.bittle.on("reject", () => this.cancelRequest());
+        this.bittle.on("renameFile", e => {
+            typeof e.json.status === "undefined" ? this.editors.renameEvent(e.json.filename, e.json.newFilename) : null;
+        });
 
         this.navigation.on("ready", () => this.auth.ready());
 
@@ -61,8 +66,12 @@ class Page {
         let currentShare = parseInt(window.location.href.split("#").pop());
 
         //URL indicates we're not loading a share, so change URL to match share we were automatically added to
-        if (isNaN(currentShare))
+        if (isNaN(currentShare)) {
+
+            this.editors.trackAll();
             return window.history.pushState("#" + e.json.shareId, "Bittle - " + e.json.shareId, "#" + e.json.shareId);
+
+        }
 
         //Else request access to the share
         this.bittle.send({id: "request", shareId: currentShare}, e => {
@@ -74,7 +83,10 @@ class Page {
                     title: "Request",
                     text: e.json.reason
 
-                }).then(() => window.history.pushState("#" + this.autoShare, "Bittle - " + this.autoShare, "#" + this.autoShare));
+                }).then(() => {
+                    this.editors.trackAll();
+                    window.history.pushState("#" + this.autoShare, "Bittle - " + this.autoShare, "#" + this.autoShare);
+                });
 
         });
 
@@ -84,7 +96,10 @@ class Page {
             title: "Request",
             text: `Requesting access to share ${e.json.shareId}.`
 
-        }).then(() => {}, () => window.history.pushState("#" + this.autoShare, "Bittle - " + this.autoShare, "#" + this.autoShare));
+        }).then(() => {}, () => {
+            this.editors.trackAll();
+            window.history.pushState("#" + this.autoShare, "Bittle - " + this.autoShare, "#" + this.autoShare);
+        });
 
     }
 
@@ -100,6 +115,14 @@ class Page {
     cancelRequest() {
 
         this.popup.no.click();
+
+    }
+
+    loggedIn() {
+
+        this.editors.trackAll();
+
+        this.navigation.loggedIn();
 
     }
 
