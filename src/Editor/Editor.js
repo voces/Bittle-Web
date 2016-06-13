@@ -39,15 +39,6 @@ class Editor extends EventEmitter2 {
 
     }
 
-    rename(newFilename) {
-
-        this.name = newFilename;
-        this.a.textContent = newFilename;
-
-        this.session.setMode(modeList.getModeForPath(newFilename).mode);
-
-    }
-
     select() {
 
         if (document.readyState === "complete") this.a.click();
@@ -154,8 +145,6 @@ class Editor extends EventEmitter2 {
 
     rename(filename) {
 
-        console.log("renameFile");
-
         this.emit("send", {
             id: "renameFile",
             filename: this.name,
@@ -164,11 +153,9 @@ class Editor extends EventEmitter2 {
 
         this.name = filename;
 
-        // this.a.setAttribute("id", "editors-bar-" + filename);
-        // this.a.setAttribute("href", "#editors-" + filename);
         this.a.textContent = filename;
 
-        // this.editorDiv.setAttribute("id", "editors-" + filename);
+        this.session.setMode(modeList.getModeForPath(filename).mode);
 
     }
 
